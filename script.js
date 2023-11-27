@@ -12,23 +12,32 @@ TODO
 - tweak klay parameters
 */
 
-document.addEventListener('DOMContentLoaded', function () { // on dom ready
+import { Neo4jClient } from "./neo4j.js";
 
+document.addEventListener('DOMContentLoaded', function () { // on dom ready
   const filePrefix = (new URLSearchParams(window.location.search)).get('p')
 
   if (filePrefix) {
     const eles = fetch(`data/${filePrefix ? filePrefix : ''}.json`)
-      .then(res => res.json())
-      .then(json => json.elements)
-      .then(eles => prepareEles(eles))
+        .then(res => res.json())
+        .then(json => json.elements)
+        .then(eles => prepareEles(eles))
 
     document.getElementById("filename").textContent = `Software Visualization: ${filePrefix}.json`;
 
     const style = fetch('style.cycss')
-      .then(res => res.text());
+        .then(res => res.text());
 
     Promise.all([eles, style])
-      .then(initCy);
+        .then(initCy);
+  } else {
+    const neo4jClient = new Neo4jClient()
+    const graph = neo4jClient.getAllDomains().then((graph) => prepareEles(graph));
+    const style = fetch('style.cycss')
+        .then(res => res.text());
+
+    Promise.all([graph, style])
+        .then(initCy);
   }
 });
 
@@ -87,6 +96,7 @@ const ft_colors = [
 ];
 
 function initCy(payload) {
+  console.log(payload);
 
   const cy = window.cy = cytoscape({
 
@@ -219,7 +229,7 @@ function bindRouters() {
 
 }
 
-const relayout = function (layout) {
+window.relayout = function (layout) {
   cy.layout({
     name: layout, animate: true,
     nodeDimensionsIncludeLabels: true,
@@ -233,54 +243,54 @@ const relayout = function (layout) {
   }).run();
 };
 
-const saveAsSvg = function (filename) {
+window.saveAsSvg = function (filename) {
   const svgContent = cy.svg({ scale: 1, full: true, bg: 'beige' });
   const blob = new Blob([svgContent],
     { type: "image/svg+xml;charset=utf-8" });
   saveAs(blob, filename);
 };
 
-const getSvgUrl = function () {
+window.getSvgUrl = function () {
   const svgContent = cy.svg({ scale: 1, full: true, bg: 'beige' });
   const blob = new Blob([svgContent],
     { type: "image/svg+xml;charset=utf-8" });
   return URL.createObjectURL(blob);
 };
 
-const showPrimitives = function (ele) {
+window.showPrimitives = function (ele) {
   cy.nodes().filter((n) => n.data("labels").includes("Primitive") || n.data("id") === "java.lang.String")
     .style({ display: ele.checked ? "element" : "none" });
 };
 
-const showPackages = function (ele) {
+window.showPackages = function (ele) {
   cy.nodes().filter((n) => n.data("labels").includes("Container") && n.data("labels").length === 1)
     .toggleClass("pkghidden", !ele.checked);
 };
 
-const setVisible = function (ele) {
+window.setVisible = function (ele) {
   cy.edges(`[interaction = "${ele.value}"]`)
     .toggleClass("hidden", !ele.checked);
 };
 
-const setLineBends = function (ele) {
+window.setLineBends = function (ele) {
   if (ele.checked) {
     cy.edges(`[interaction = "${ele.name}"]`)
       .style("curve-style", ele.value);
   }
 };
 
-const fileUpload = function () {
+window.fileUpload = function () {
   const fileSelector = document.getElementById("file-selector")
   fileSelector.click();
   fileSelector.addEventListener('change', (event) => {
     const file = event.target.files[0];
-    filePrefix = file.name;
+    const filePrefix = file.name;
     document.getElementById("filename").textContent = `Software Visualization: ${filePrefix}`;
     const reader = new FileReader();
     reader.readAsText(file, 'UTF-8');
     reader.onload = function (e) {
-      json = JSON.parse(e.target.result);
-      eles = prepareEles(json.elements);
+      const json = JSON.parse(e.target.result);
+      const eles = prepareEles(json.elements);
       const style = fetch('style.cycss')
         .then(res => res.text());
 
@@ -290,8 +300,8 @@ const fileUpload = function () {
   });
 }
 
-flip = true;
-const toggleVisibility = function () {
+let flip = true;
+window.toggleVisibility = function () {
   cy.style().selector('.dimmed')
     .style({
       'display': flip ? 'none' : 'element'
@@ -300,7 +310,7 @@ const toggleVisibility = function () {
   flip = !flip;
 };
 
-const fillRSFilter = function(_cy) {
+window.fillRSFilter = function(_cy) {
   const menuNodes = document.getElementById("menu-nodes");
 
   const rsHeader = document.createElement("p");
@@ -329,7 +339,7 @@ const fillRSFilter = function(_cy) {
   }
 }
 
-const fillRelationshipToggles = function (_cy) {
+window.fillRelationshipToggles = function (_cy) {
 
   const table = document.getElementById("reltab"); // Get the table element
   table.innerHTML = "";
@@ -416,7 +426,7 @@ const fillRelationshipToggles = function (_cy) {
 
 }
 
-const fillFeatureDropdown = function (_cy) {
+window.fillFeatureDropdown = function (_cy) {
   let tracesSet = new Set();
   _cy.nodes().forEach((e) => {
     if (e.data("properties.traces")) {
@@ -454,7 +464,7 @@ const fillFeatureDropdown = function (_cy) {
 };
 
 
-const fillBugsDropdown = function (_cy) {
+window.fillBugsDropdown = function (_cy) {
   let bugsSet = new Set();
   _cy.nodes().forEach((e) => {
     if (e.data()["properties"]["vulnerabilities"]) {
@@ -506,7 +516,7 @@ function arrayIntersection(arr1, arr2) {
   return result;
 }
 
-const highlight = function (text) {
+window.highlight = function (text) {
   if (text) {
     const classes = text.split(/[,\s]+/);
     cy.elements().addClass("dimmed");
@@ -527,7 +537,7 @@ const highlight = function (text) {
   cy.edges(`[interaction = "${parentRel}"]`).style("display", "none");
 };
 
-const showRS = function (evt) {
+window.showRS = function (evt) {
   // console.log(evt.checked, evt.value);
   if (evt.checked) {
     cy.nodes(`[properties.rs = "${evt.value}"]`).removeClass("dimmed");
@@ -541,7 +551,7 @@ const showRS = function (evt) {
   }
 };
 
-const showTrace = function (evt) {
+window.showTrace = function (evt) {
 
   const trace_names = Array.from(document.getElementsByName("showfeatures"))
       .filter((e) => e.checked)
@@ -596,7 +606,7 @@ const showTrace = function (evt) {
   cy.edges(`[interaction = "${parentRel}"]`).style("display", "none");
 };
 
-const showBug = function (evt) {
+window.showBug = function (evt) {
 
   const bug_names = Array.from(document.getElementsByName("showbugs"))
       .filter((e) => e.checked)
@@ -657,7 +667,7 @@ const showBug = function (evt) {
 
 
 
-function openSidebarTab(evt, cityName) {
+window.openSidebarTab = function (evt, cityName) {
   let i, x, tablinks;
   x = document.getElementsByClassName("sidebar-tab");
   for (i = 0; i < x.length; i++) {
