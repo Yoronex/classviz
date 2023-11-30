@@ -10,7 +10,7 @@ export class Neo4jClient {
 
     async getDomainModules(id) {
         const session = this.driver.session();
-        const result = await session.run(`MATCH (d)-[r*]-(a) WHERE elementId(d) = '${id}' RETURN d, r, a`);
+        const result = await session.run(`MATCH (d)-[r*0..7]->(a) WHERE elementId(d) = '${id}' RETURN d, r, a`);
         console.info(result);
         return this.formatToLPG(result.records);
     }
@@ -23,9 +23,11 @@ export class Neo4jClient {
                     data: {
                         id: field.elementId,
                         properties: {
-                            simpleName: field.properties.name,
+                            simpleName: field.properties.simpleName,
                             kind: 'node',
                             traces: [],
+                            color: field.properties.color,
+                            depth: field.properties.depth,
                         },
                         labels: field.labels,
                     },

@@ -13,6 +13,7 @@ TODO
 */
 
 import { Neo4jClient } from "./neo4j.js";
+import { shadeHexColor } from "./colors.js";
 
 document.addEventListener('DOMContentLoaded', function () { // on dom ready
   const filePrefix = (new URLSearchParams(window.location.search)).get('p')
@@ -95,31 +96,32 @@ const ft_colors = [
   "#ffed6f",
 ];
 
-function initCy(payload) {
-  console.log(payload);
-
+function initCy([graph, style]) {
   const cy = window.cy = cytoscape({
 
     container: document.getElementById('cy'),
 
     elements: {
-      nodes: payload[0].nodes,
-      edges: payload[0].edges
+      nodes: graph.nodes,
+      edges: graph.edges
     },
 
-    style: payload[1],
+    style,
 
     wheelSensitivity: 0.25,
   });
 
-  setParents(parentRel, false);
+  // Give every node their corresponding color
+  cy.nodes().forEach((n) => {
+    const hexColor = n.data('properties.color');
+    if (!hexColor) return;
+    const depth = Number(n.data('properties.depth'));
+    const alpha = (4 - depth) * 0.15;
+    const lightened = shadeHexColor(hexColor, alpha);
+    n.style('background-color', lightened);
+  })
 
-  cy.nodes('[properties.kind = "package"]').forEach((n) => {
-    const d = n.ancestors().length;
-    // console.log(n.data('id'),d);
-    const grey = Math.min(160 + (d*20), 255);
-    n.style('background-color', `rgb(${grey},${grey},${grey})`);
-  });
+  setParents(parentRel, false);
 
   fillRSFilter(cy);
   fillRelationshipToggles(cy);
