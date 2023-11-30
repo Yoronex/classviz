@@ -8,23 +8,55 @@ export class Neo4jClient {
         return this.formatToLPG(result.records);
     }
 
+    async getDomainModules(id) {
+        const session = this.driver.session();
+        const result = await session.run(`MATCH (d)-[r*]-(a) WHERE elementId(d) = '${id}' RETURN d, r, a`);
+        console.info(result);
+        return this.formatToLPG(result.records);
+    }
+
     formatToLPG(records) {
-        return {
-            nodes: records.map((r) => {
-                const {labels, properties} = r._fields[0];
-                return {
+        const nodes = records
+            .map((r) => r._fields
+                .filter((field) => !Array.isArray(field))
+                .map((field) => ({
                     data: {
-                        id: properties.id,
+                        id: field.elementId,
                         properties: {
-                            simpleName: properties.name,
+                            simpleName: field.properties.name,
                             kind: 'node',
                             traces: [],
                         },
-                        labels,
+                        labels: field.labels,
                     },
-                };
-            }),
-            edges: [],
+                }))
+            )
+            .flat()
+            .filter((node, index, all) => all.findIndex((n2) => n2.data.id === node.data.id) === index);
+
+        const edges = records
+            .map((r) => r._fields
+                .filter((field) => Array.isArray(field))
+                .map((relationships) => {
+                    return relationships.map((r) => ({ data: {
+                        id: r.elementId,
+                        source: r.startNodeElementId,
+                        target: r.endNodeElementId,
+                        label: r.type.toLowerCase(),
+                        properties: {
+                            weight: 1,
+                            traces: [],
+                        }
+                    }}))
+                }))
+            .flat()
+            .flat()
+            .filter((e1, index, edges) => index === edges
+                .findIndex((e2) => e1.data.id === e2.data.id))
+
+        return {
+            nodes,
+            edges,
         };
     }
 }

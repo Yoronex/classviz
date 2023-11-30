@@ -147,6 +147,7 @@ var infoBody = document.getElementById("infobody");
 
 // Add a click event listener to the div
 infoTitle.addEventListener("click", function () {
+  console.trace('click infoTitle');
   if (infoBody.style.display === "none") {
     infoBody.style.display = "block";
     infoTitle.style.borderBottomLeftRadius = 0;
@@ -165,36 +166,46 @@ function bindRouters() {
   // right click dims the element
   cy.on('cxttap', 'node,edge',
     evt => {
-      evt.target.addClass("dimmed")
-      const interactions = Array.from(document
-        .querySelectorAll('input[name="showrels"]'))
-        .filter(cb => cb.checked).map(cb => cb.value);
-
-      const edges = evt.target.connectedEdges()
-        .filter(e => interactions.includes(e.data('interaction')));
-      edges.addClass("dimmed");
+      // console.trace('click cxttap');
+      // evt.target.addClass("dimmed")
+      // const interactions = Array.from(document
+      //   .querySelectorAll('input[name="showrels"]'))
+      //   .filter(cb => cb.checked).map(cb => cb.value);
+      //
+      // const edges = evt.target.connectedEdges()
+      //   .filter(e => interactions.includes(e.data('interaction')));
+      // edges.addClass("dimmed");
     });
 
   // left click highlights the node and its connected edges and nodes
-  cy.on('tap', 'node', evt => {
-    evt.target.removeClass("dimmed")
+  cy.on('tap', 'node', function (evt) {
+    // console.trace('click tap node');
+    // evt.target.removeClass("dimmed")
+    //
+    // // currently visible relationship types
+    // const interactions = Array.from(document
+    //   .querySelectorAll('input[name="showrels"]'))
+    //   .filter(cb => cb.checked).map(cb => cb.value);
+    //
+    // const edges = evt.target.connectedEdges()
+    //   .filter(e => interactions.includes(e.data('interaction')));
+    // edges.removeClass("dimmed");
+    // edges.connectedNodes().removeClass("dimmed");
+    const element = this.id();
+    const neo4jClient = new Neo4jClient()
+    const graph = neo4jClient.getDomainModules(element).then((graph) => prepareEles(graph));
+    const style = fetch('style.cycss')
+        .then(res => res.text());
 
-    // currently visible relationship types
-    const interactions = Array.from(document
-      .querySelectorAll('input[name="showrels"]'))
-      .filter(cb => cb.checked).map(cb => cb.value);
-
-    const edges = evt.target.connectedEdges()
-      .filter(e => interactions.includes(e.data('interaction')));
-    edges.removeClass("dimmed");
-    edges.connectedNodes().removeClass("dimmed");
-
+    Promise.all([graph, style])
+        .then(initCy);
   });
 
   // left click highlights the edge and its connected nodes
   cy.on('tap', 'edge', evt => {
-    evt.target.removeClass("dimmed");
-    evt.target.connectedNodes().removeClass("dimmed");
+    // console.trace('click tap edge');
+    // evt.target.removeClass("dimmed");
+    // evt.target.connectedNodes().removeClass("dimmed");
   });
 
   cy.on('mouseover', 'node', evt => {
