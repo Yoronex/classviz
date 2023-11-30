@@ -323,10 +323,16 @@ window.toggleVisibility = function () {
 
 window.fillRSFilter = function(_cy) {
   const menuNodes = document.getElementById("menu-nodes");
+  const rsFilters = menuNodes.getElementsByClassName('rs-filter-container');
+  Array.from(rsFilters).forEach((rsFilter) => {
+    menuNodes.removeChild(rsFilter);
+  })
 
+  const containerDiv = document.createElement('div');
+  containerDiv.setAttribute('class', 'rs-filter-container');
   const rsHeader = document.createElement("p");
   rsHeader.innerHTML = "<b>Role Stereotypes</b>";
-  menuNodes.appendChild(rsHeader);
+  containerDiv.appendChild(rsHeader);
 
   for (let i = 0; i < Object.keys(rs_colors).length; i++) {
 
@@ -346,8 +352,10 @@ window.fillRSFilter = function(_cy) {
     label.appendChild(labelText);
 
     div.appendChild(label);
-    menuNodes.appendChild(div);
+    containerDiv.appendChild(div);
   }
+
+  menuNodes.appendChild(containerDiv);
 }
 
 window.fillRelationshipToggles = function (_cy) {
