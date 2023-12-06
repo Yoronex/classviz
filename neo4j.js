@@ -15,7 +15,7 @@ export class Neo4jClient {
     async getDomainModules(id = undefined) {
         if (id) this.selectedNodeId = id;
         const session = this.driver.session();
-        const result = await session.run(`MATCH (d)-[r*0..${this.graphDepth}]->(a) WHERE elementId(d) = '${this.selectedNodeId}' RETURN d, r, a UNION ALL MATCH (d)<-[r:CONTAINS*]-(a) WHERE elementId(d) = '${this.selectedNodeId}' RETURN a, r, d`);
+        const result = await session.run(`MATCH (d WHERE elementId(d) = '${this.selectedNodeId}')-[r*0..${this.graphDepth}]->(a)<-[r2:CONTAINS*0..5]-(d2) RETURN d, r, a, a as a2, r2, d2`);
         console.info(result);
         return this.formatToLPG(result.records);
     }
