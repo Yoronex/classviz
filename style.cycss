@@ -126,9 +126,9 @@ edge[interaction = "contains"] {
 }
 
 edge[interaction = "calls"] {
-  target-arrow-color: #1c9099;
+  target-arrow-color: #ff0000;
   line-fill: linear-gradient;
-  line-gradient-stop-colors: #edf8b1 #1c9099;
+  line-gradient-stop-colors: #ffffff #ff0000;
   line-gradient-stop-positions: 0% 100%;
   source-arrow-shape: none;
   target-arrow-shape: none;

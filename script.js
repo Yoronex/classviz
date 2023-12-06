@@ -34,12 +34,7 @@ document.addEventListener('DOMContentLoaded', function () { // on dom ready
     Promise.all([eles, style])
         .then(initCy);
   } else {
-    const graph = neo4jClient.getAllDomains().then((graph) => prepareEles(graph));
-    const style = fetch('style.cycss')
-        .then(res => res.text());
-
-    Promise.all([graph, style])
-        .then(initCy);
+    loadRootGraph();
   }
 });
 
@@ -57,13 +52,24 @@ const prepareEles = function (eles) {
   return eles;
 }
 
-function refreshGraph() {
-  const graph = neo4jClient.getDomainModules().then((graph) => prepareEles(graph));
+function renderGraph(graph) {
   const style = fetch('style.cycss')
       .then(res => res.text());
 
   Promise.all([graph, style])
-      .then(initCy);
+      .then(initCy)
+      .then(() => console.info('loading finished.'));
+}
+
+window.loadRootGraph = function () {
+  const graph = neo4jClient.getAllDomains().then((graph) => prepareEles(graph));
+  renderGraph(graph);
+}
+
+function refreshGraph() {
+  console.info('start loading...');
+  const graph = neo4jClient.getDomainModules().then((graph) => prepareEles(graph));
+  renderGraph(graph);
 }
 
 function setParents(relationship, inverted) {
@@ -550,7 +556,7 @@ window.highlight = function (text) {
 
     const cy_classes = cy.nodes()
       .filter(function (node) {
-        return classes.includes(node.data('name'));
+        return classes.includes(node.data('simpleName'));
       });
     const cy_edges = cy_classes.edgesWith(cy_classes);
     cy_classes.removeClass("dimmed");

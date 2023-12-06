@@ -87,10 +87,15 @@
         </div>
         <div class="menu" id="menu-filters">
             <h2>Graph filters</h2>
-            <div>
+            <div style="margin-bottom: 0.5rem">
                 <label for="graph-depth">Graph depth</label>
                 <input type="range" min="0" max="10" value="1" id="graph-depth" oninput="updateSliderValue(this)" onchange="updateGraphDepth(this)">
                 <span id="graph-depth-value">1</span>
+            </div>
+            <div>
+                <button class="sidebar" onclick="loadRootGraph(this)">
+                    Return to domain overview
+                </button>
             </div>
         </div>
         <div class="menu" id="menu-edges">
