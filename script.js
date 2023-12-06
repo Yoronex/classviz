@@ -52,7 +52,9 @@ const prepareEles = function (eles) {
   return eles;
 }
 
-function renderGraph(graph) {
+function renderGraph(getGraph) {
+  console.info('start loading...');
+  const graph = getGraph().then((graph) => prepareEles(graph));
   const style = fetch('style.cycss')
       .then(res => res.text());
 
@@ -62,14 +64,11 @@ function renderGraph(graph) {
 }
 
 window.loadRootGraph = function () {
-  const graph = neo4jClient.getAllDomains().then((graph) => prepareEles(graph));
-  renderGraph(graph);
+  renderGraph(neo4jClient.getAllDomains.bind(neo4jClient));
 }
 
 function refreshGraph() {
-  console.info('start loading...');
-  const graph = neo4jClient.getDomainModules().then((graph) => prepareEles(graph));
-  renderGraph(graph);
+  renderGraph(neo4jClient.getDomainModules.bind(neo4jClient));
 }
 
 function setParents(relationship, inverted) {

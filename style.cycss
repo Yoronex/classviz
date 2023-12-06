@@ -19,6 +19,11 @@ node {
   text-wrap: wrap;
 }
 
+node[properties.selected = "true"] {
+  border-color: #ff0000;
+  border-width: 4;
+}
+
 node[labels.1 = "vulnerable"]{
   border-color: #ff0000;
   border-width: 4;

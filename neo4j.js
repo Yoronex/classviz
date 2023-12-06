@@ -5,15 +5,17 @@ export class Neo4jClient {
     selectedNodeId;
 
     async getAllDomains() {
+        this.selectedNodeId = undefined;
         const session = this.driver.session();
         const result = await session.run(`MATCH (d: Domain) return d`);
         console.info(result);
         return this.formatToLPG(result.records);
     }
 
-    async getDomainModules() {
+    async getDomainModules(id = undefined) {
+        if (id) this.selectedNodeId = id;
         const session = this.driver.session();
-        const result = await session.run(`MATCH (d)-[r*0..${this.graphDepth}]->(a) WHERE elementId(d) = '${this.selectedNodeId}' RETURN d, r, a`);
+        const result = await session.run(`MATCH (d)-[r*0..${this.graphDepth}]->(a) WHERE elementId(d) = '${this.selectedNodeId}' RETURN d, r, a UNION ALL MATCH (d)<-[r:CONTAINS*]-(a) WHERE elementId(d) = '${this.selectedNodeId}' RETURN a, r, d`);
         console.info(result);
         return this.formatToLPG(result.records);
     }
@@ -31,6 +33,7 @@ export class Neo4jClient {
                             traces: [],
                             color: field.properties.color,
                             depth: field.properties.depth,
+                            selected: field.elementId === this.selectedNodeId ? 'true' : 'false',
                         },
                         labels: field.labels,
                     },
