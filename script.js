@@ -15,6 +15,8 @@ TODO
 import { Neo4jClient } from "./neo4j.js";
 import { shadeHexColor } from "./colors.js";
 
+const neo4jClient = new Neo4jClient();
+
 document.addEventListener('DOMContentLoaded', function () { // on dom ready
   const filePrefix = (new URLSearchParams(window.location.search)).get('p')
 
@@ -32,7 +34,6 @@ document.addEventListener('DOMContentLoaded', function () { // on dom ready
     Promise.all([eles, style])
         .then(initCy);
   } else {
-    const neo4jClient = new Neo4jClient()
     const graph = neo4jClient.getAllDomains().then((graph) => prepareEles(graph));
     const style = fetch('style.cycss')
         .then(res => res.text());
@@ -54,6 +55,15 @@ const prepareEles = function (eles) {
   });
 
   return eles;
+}
+
+function refreshGraph() {
+  const graph = neo4jClient.getDomainModules().then((graph) => prepareEles(graph));
+  const style = fetch('style.cycss')
+      .then(res => res.text());
+
+  Promise.all([graph, style])
+      .then(initCy);
 }
 
 function setParents(relationship, inverted) {
@@ -194,13 +204,8 @@ function bindRouters() {
     // edges.removeClass("dimmed");
     // edges.connectedNodes().removeClass("dimmed");
     const element = this.id();
-    const neo4jClient = new Neo4jClient()
-    const graph = neo4jClient.getDomainModules(element).then((graph) => prepareEles(graph));
-    const style = fetch('style.cycss')
-        .then(res => res.text());
-
-    Promise.all([graph, style])
-        .then(initCy);
+    neo4jClient.selectedNodeId = element;
+    refreshGraph();
   });
 
   // left click highlights the edge and its connected nodes
@@ -686,8 +691,6 @@ window.showBug = function (evt) {
   cy.edges(`[interaction = "${parentRel}"]`).style("display", "none");
 };
 
-
-
 window.openSidebarTab = function (evt, cityName) {
   let i, x, tablinks;
   x = document.getElementsByClassName("sidebar-tab");
@@ -700,6 +703,16 @@ window.openSidebarTab = function (evt, cityName) {
   }
   document.getElementById(cityName).style.display = "block";
   evt.currentTarget.className += " active";
+}
+
+window.updateSliderValue = function (event) {
+  const sliderValue = document.getElementById('graph-depth-value');
+  sliderValue.innerHTML = event.value;
+}
+
+window.updateGraphDepth = function (event) {
+  neo4jClient.graphDepth = parseInt(event.value);
+  refreshGraph();
 }
 
 function bindPopper(target) {

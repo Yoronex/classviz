@@ -1,6 +1,9 @@
 export class Neo4jClient {
     driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j', 'QAd31C6wU5jAevy1'));
 
+    graphDepth = 1;
+    selectedNodeId;
+
     async getAllDomains() {
         const session = this.driver.session();
         const result = await session.run(`MATCH (d: Domain) return d`);
@@ -8,9 +11,9 @@ export class Neo4jClient {
         return this.formatToLPG(result.records);
     }
 
-    async getDomainModules(id) {
+    async getDomainModules() {
         const session = this.driver.session();
-        const result = await session.run(`MATCH (d)-[r*0..7]->(a) WHERE elementId(d) = '${id}' RETURN d, r, a`);
+        const result = await session.run(`MATCH (d)-[r*0..${this.graphDepth}]->(a) WHERE elementId(d) = '${this.selectedNodeId}' RETURN d, r, a`);
         console.info(result);
         return this.formatToLPG(result.records);
     }
