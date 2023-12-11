@@ -12,13 +12,31 @@ export class Neo4jClient {
         return this.formatToLPG(result.records);
     }
 
-    async getDomainModules(id = undefined) {
+    async getDomainModules(id = undefined, onlyInternalRelations = false, onlyExternalRelations = false) {
         if (id) this.selectedNodeId = id;
         const session = this.driver.session();
-        const result = await session.run(`MATCH (d WHERE elementId(d) = '${this.selectedNodeId}')-[r*0..${this.graphDepth}]->(a)<-[r2:CONTAINS*0..5]-(d2) RETURN d, r, a, a as a2, r2, d2`);
+        let query = `
+            MATCH (selectedNode WHERE elementId(selectedNode) = '${this.selectedNodeId}')-[r1:CONTAINS*0..5]->(moduleOrLayer) // Get all modules that belong to the selected node
+            OPTIONAL MATCH (moduleOrLayer)-[r2*1..${this.graphDepth}]->(dependency:Module)                                           // Get the dependencies of the modules with given depth
+            MATCH (selectedNode)<-[r3:CONTAINS*0..5]-(selectedParent)                                                  // Find all the parents of the selected node (up to the domain)
+            MATCH (selectedNode)<-[:CONTAINS*0..5]-(selectedDomain:Domain)                                             // Get the domain of the selected node
+            MATCH (dependency)<-[r4:CONTAINS*0..5]-(parent)                                                            // Get the layers, application and domain of all dependencies
+            WHERE true `;
+        if (onlyInternalRelations) {
+            query += 'AND (selectedDomain:Domain)-[:CONTAINS*]->(dependency) '; // Dependency should be in the same domain
+        }
+        if (onlyExternalRelations) {
+            // TODO: Fix exclusion of all non-module nodes between the selected node and modules (like (sub)layers)
+            query += 'AND NOT (selectedDomain:Domain)-[:CONTAINS*]->(dependency) '; // Dependency should not be in the same domain
+        }
+        query += 'RETURN DISTINCT selectedNode, r1, r2, r3, r4, moduleOrLayer, dependency, selectedParent, parent';
+
+        const result = await session.run(query);
         console.info(result);
         return this.formatToLPG(result.records);
     }
+    //
+    // AND (selectedDomain)-[:CONTAINS*]->(dependency)
 
     formatToLPG(records) {
         const nodes = records

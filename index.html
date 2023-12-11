@@ -77,13 +77,6 @@
     <div class="sidebar-tab" id="tab-basic">
         <div class="menu" id="menu-nodes">
             <h2>Nodes</h2>
-            <label for="showPrimitives">
-                <input type="checkbox" id="showPrimitives" name="showPrimitives" onchange="showPrimitives(this)"
-                       value="showPrimitives" checked="checked"/>Show primitives
-            </label><br/><label for="showPackages">
-            <input type="checkbox" id="showPackages" name="showPackages" onchange="showPackages(this)"
-                   value="showPackages" checked="checked"/>Show packages
-        </label>
         </div>
         <div class="menu" id="menu-filters">
             <h2>Graph filters</h2>
@@ -100,6 +93,17 @@
         </div>
         <div class="menu" id="menu-edges">
             <h2>Relationships</h2>
+            <div style="margin-bottom: 1rem">
+                <label for="showInternalRelationships">
+                    <input type="checkbox" id="showInternalRelationships" name="showInternalRelationships" onchange="refreshGraph(this)" checked="checked"/>
+                    Show internal relationships
+                </label>
+                <br>
+                <label for="showExternalRelationships">
+                    <input type="checkbox" id="showExternalRelationships" name="showExternalRelationships" onchange="refreshGraph(this)" checked="checked"/>
+                    Show external relationships
+                </label>
+            </div>
             <table style="width: 100%; text-align: left" id="reltab">
                 <thead>
                 <th>Connection</th>

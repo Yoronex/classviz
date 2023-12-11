@@ -52,9 +52,9 @@ const prepareEles = function (eles) {
   return eles;
 }
 
-function renderGraph(getGraph) {
+function renderGraph(getGraph, ...params) {
   console.info('start loading...');
-  const graph = getGraph().then((graph) => prepareEles(graph));
+  const graph = getGraph(...params).then((graph) => prepareEles(graph));
   const style = fetch('style.cycss')
       .then(res => res.text());
 
@@ -67,8 +67,14 @@ window.loadRootGraph = function () {
   renderGraph(neo4jClient.getAllDomains.bind(neo4jClient));
 }
 
-function refreshGraph() {
-  renderGraph(neo4jClient.getDomainModules.bind(neo4jClient));
+window.refreshGraph = function () {
+  const showInternalRels = document.getElementById('showInternalRelationships')?.checked || false;
+  const showExternalRels = document.getElementById('showExternalRelationships')?.checked || false;
+  console.log(showExternalRels)
+  const onlyShowInternalRels = !showExternalRels;
+  const onlyShowExternalRels = !showInternalRels;
+  console.log(onlyShowInternalRels, onlyShowExternalRels);
+  renderGraph(neo4jClient.getDomainModules.bind(neo4jClient), undefined, showInternalRels, onlyShowExternalRels);
 }
 
 function setParents(relationship, inverted) {
@@ -138,23 +144,11 @@ function initCy([graph, style]) {
 
   setParents(parentRel, false);
 
-  fillRSFilter(cy);
   fillRelationshipToggles(cy);
   fillFeatureDropdown(cy);
-  // fillBugsDropdown(cy);
 
   bindRouters();
 
-  const cbShowPrimitives = document.getElementById("showPrimitives");
-  const cbShowPackages = document.getElementById("showPackages");
-
-  cbShowPrimitives.checked = false;
-  cbShowPackages.checked = true;
-
-  showPrimitives(cbShowPrimitives);
-  showPackages(cbShowPackages);
-
-  // cy.nodes().filter('node').forEach(n => (bindPopper(n)))
   return cy;
 }
 
@@ -280,16 +274,6 @@ window.getSvgUrl = function () {
   return URL.createObjectURL(blob);
 };
 
-window.showPrimitives = function (ele) {
-  cy.nodes().filter((n) => n.data("labels").includes("Primitive") || n.data("id") === "java.lang.String")
-    .style({ display: ele.checked ? "element" : "none" });
-};
-
-window.showPackages = function (ele) {
-  cy.nodes().filter((n) => n.data("labels").includes("Container") && n.data("labels").length === 1)
-    .toggleClass("pkghidden", !ele.checked);
-};
-
 window.setVisible = function (ele) {
   cy.edges(`[interaction = "${ele.value}"]`)
     .toggleClass("hidden", !ele.checked);
@@ -332,43 +316,6 @@ window.toggleVisibility = function () {
     .update();
   flip = !flip;
 };
-
-window.fillRSFilter = function(_cy) {
-  const menuNodes = document.getElementById("menu-nodes");
-  const rsFilters = menuNodes.getElementsByClassName('rs-filter-container');
-  Array.from(rsFilters).forEach((rsFilter) => {
-    menuNodes.removeChild(rsFilter);
-  })
-
-  const containerDiv = document.createElement('div');
-  containerDiv.setAttribute('class', 'rs-filter-container');
-  const rsHeader = document.createElement("p");
-  rsHeader.innerHTML = "<b>Role Stereotypes</b>";
-  containerDiv.appendChild(rsHeader);
-
-  for (let i = 0; i < Object.keys(rs_colors).length; i++) {
-
-    const div = document.createElement("div");
-    const label = document.createElement("label");
-    label.setAttribute("for", `rs-${Object.keys(rs_colors)[i]}`);
-    label.setAttribute("class", "rslabel")
-    const checkbox = document.createElement("input");
-    checkbox.setAttribute("type", "checkbox");
-    checkbox.setAttribute("id", `rs-${Object.keys(rs_colors)[i]}`);
-    checkbox.setAttribute("name", "showrs");
-    checkbox.setAttribute("onchange", "showRS(this)");
-    checkbox.setAttribute("value", Object.keys(rs_colors)[i]);
-    checkbox.checked = true;
-    const labelText = document.createTextNode(Object.keys(rs_colors)[i]);
-    label.appendChild(checkbox);
-    label.appendChild(labelText);
-
-    div.appendChild(label);
-    containerDiv.appendChild(div);
-  }
-
-  menuNodes.appendChild(containerDiv);
-}
 
 window.fillRelationshipToggles = function (_cy) {
 
