@@ -109,15 +109,15 @@ node[labels.0 = "BugType"] {
 }
 
 edge {
-  width: 3;
-  line-color: black;
-  target-arrow-color: black;
-  source-arrow-color: black;
-  curve-style: bezier;
-  edge-text-rotation: autorotate;
-  target-arrow-shape: vee;
-  label: data(interaction);
-  arrow-scale: 1.5;
+  target-arrow-color: #ff0000;
+  line-fill: linear-gradient;
+  line-gradient-stop-colors: #000000 #ff0000;
+  line-gradient-stop-positions: 0% 100%;
+  line-style: dashed;
+  source-arrow-shape: none;
+  target-arrow-shape: triangle;
+  taxi-direction: leftward;
+  taxi-turn: -32px;
 }
 
 edge[interaction = "contains"] {
@@ -133,10 +133,10 @@ edge[interaction = "contains"] {
 edge[interaction = "calls"] {
   target-arrow-color: #ff0000;
   line-fill: linear-gradient;
-  line-gradient-stop-colors: #ffffff #ff0000;
+  line-gradient-stop-colors: #000000 #ff0000;
   line-gradient-stop-positions: 0% 100%;
   source-arrow-shape: none;
-  target-arrow-shape: none;
+  target-arrow-shape: triangle;
   line-style: dashed;
   taxi-direction: leftward;
   taxi-turn: -32px;

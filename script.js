@@ -16,6 +16,8 @@ import { Neo4jClient } from "./neo4j.js";
 import { shadeHexColor } from "./colors.js";
 
 const neo4jClient = new Neo4jClient();
+let selectedNodeId = '';
+let graphDepth = 1;
 
 document.addEventListener('DOMContentLoaded', function () { // on dom ready
   const filePrefix = (new URLSearchParams(window.location.search)).get('p')
@@ -74,7 +76,7 @@ window.refreshGraph = function () {
   const onlyShowInternalRels = !showExternalRels;
   const onlyShowExternalRels = !showInternalRels;
   console.log(onlyShowInternalRels, onlyShowExternalRels);
-  renderGraph(neo4jClient.getDomainModules.bind(neo4jClient), undefined, showInternalRels, onlyShowExternalRels);
+  renderGraph(neo4jClient.getDomainModules.bind(neo4jClient), selectedNodeId, graphDepth, showInternalRels, onlyShowExternalRels);
 }
 
 function setParents(relationship, inverted) {
@@ -139,6 +141,7 @@ function initCy([graph, style]) {
     const depth = Number(n.data('properties.depth'));
     const alpha = (4 - depth) * 0.15;
     const lightened = shadeHexColor(hexColor, alpha);
+    console.log(hexColor, n.data('properties.depth'), alpha, lightened);
     n.style('background-color', lightened);
   })
 
@@ -203,7 +206,7 @@ function bindRouters() {
     // edges.removeClass("dimmed");
     // edges.connectedNodes().removeClass("dimmed");
     const element = this.id();
-    neo4jClient.selectedNodeId = element;
+    selectedNodeId = element;
     refreshGraph();
   });
 
@@ -663,7 +666,7 @@ window.updateSliderValue = function (event) {
 }
 
 window.updateGraphDepth = function (event) {
-  neo4jClient.graphDepth = parseInt(event.value);
+  graphDepth = parseInt(event.value);
   refreshGraph();
 }
 
