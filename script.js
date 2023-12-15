@@ -76,7 +76,7 @@ window.refreshGraph = function () {
   const onlyShowInternalRels = !showExternalRels;
   const onlyShowExternalRels = !showInternalRels;
   console.log(onlyShowInternalRels, onlyShowExternalRels);
-  renderGraph(neo4jClient.getDomainModules.bind(neo4jClient), selectedNodeId, graphDepth, showInternalRels, onlyShowExternalRels);
+  renderGraph(neo4jClient.getDomainModules.bind(neo4jClient), selectedNodeId, graphDepth, onlyShowInternalRels, onlyShowExternalRels);
 }
 
 function setParents(relationship, inverted) {
@@ -141,7 +141,6 @@ function initCy([graph, style]) {
     const depth = Number(n.data('properties.depth'));
     const alpha = (4 - depth) * 0.15;
     const lightened = shadeHexColor(hexColor, alpha);
-    console.log(hexColor, n.data('properties.depth'), alpha, lightened);
     n.style('background-color', lightened);
   })
 
