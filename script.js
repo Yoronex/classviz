@@ -17,7 +17,8 @@ import { shadeHexColor } from "./colors.js";
 
 const neo4jClient = new Neo4jClient();
 let selectedNodeId = '';
-let graphDepth = 1;
+let layerDepth = 1;
+let dependencyDepth = 1;
 
 document.addEventListener('DOMContentLoaded', function () { // on dom ready
   const filePrefix = (new URLSearchParams(window.location.search)).get('p')
@@ -66,17 +67,19 @@ function renderGraph(getGraph, ...params) {
 }
 
 window.loadRootGraph = function () {
+  selectedNodeId = undefined;
   renderGraph(neo4jClient.getAllDomains.bind(neo4jClient));
 }
 
 window.refreshGraph = function () {
+  if (!selectedNodeId) return;
   const showInternalRels = document.getElementById('showInternalRelationships')?.checked || false;
   const showExternalRels = document.getElementById('showExternalRelationships')?.checked || false;
   console.log(showExternalRels)
   const onlyShowInternalRels = !showExternalRels;
   const onlyShowExternalRels = !showInternalRels;
   console.log(onlyShowInternalRels, onlyShowExternalRels);
-  renderGraph(neo4jClient.getDomainModules.bind(neo4jClient), selectedNodeId, graphDepth, onlyShowInternalRels, onlyShowExternalRels);
+  renderGraph(neo4jClient.getDomainModules.bind(neo4jClient), selectedNodeId, layerDepth, dependencyDepth, onlyShowInternalRels, onlyShowExternalRels);
 }
 
 function setParents(relationship, inverted) {
@@ -142,6 +145,12 @@ function initCy([graph, style]) {
     const alpha = (4 - depth) * 0.15;
     const lightened = shadeHexColor(hexColor, alpha);
     n.style('background-color', lightened);
+  });
+
+  cy.edges().forEach((e) => {
+    const weight = e.data('properties.weight');
+    if (!weight) return;
+    e.style('width', 1.5 * Math.sqrt(weight));
   })
 
   setParents(parentRel, false);
@@ -365,7 +374,7 @@ window.fillRelationshipToggles = function (_cy) {
       checkbox.setAttribute("name", "showrels");
       checkbox.setAttribute("onchange", "setVisible(this)");
       checkbox.setAttribute("value", l);
-      checkbox.checked = ["calls"].includes(l);
+      checkbox.checked = !["contains"].includes(l);
       const labelText = document.createTextNode(l);
       label.appendChild(checkbox);
       label.appendChild(labelText);
@@ -659,13 +668,23 @@ window.openSidebarTab = function (evt, cityName) {
   evt.currentTarget.className += " active";
 }
 
-window.updateSliderValue = function (event) {
-  const sliderValue = document.getElementById('graph-depth-value');
+window.updateLayerDepthValue = function (event) {
+  const sliderValue = document.getElementById('layer-depth-value');
   sliderValue.innerHTML = event.value;
 }
 
-window.updateGraphDepth = function (event) {
-  graphDepth = parseInt(event.value);
+window.updateLayerDepth = function (event) {
+  layerDepth = parseInt(event.value);
+  refreshGraph();
+}
+
+window.updateDependencyDepthValue = function (event) {
+  const sliderValue = document.getElementById('dependency-depth-value');
+  sliderValue.innerHTML = event.value;
+}
+
+window.updateDependencyDepth = function (event) {
+  dependencyDepth = parseInt(event.value);
   refreshGraph();
 }
 

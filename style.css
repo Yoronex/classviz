@@ -237,3 +237,20 @@ ul.tabs {
   border-bottom-right-radius: inherit;
   display: block;
 }
+
+.slider {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+  margin-bottom: 0.25rem;
+
+  label,span {
+    white-space: nowrap;
+  }
+
+  input {
+    flex-grow: 1;
+    width: 100%;
+  }
+}

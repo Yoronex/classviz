@@ -63,10 +63,6 @@
 </div>
 
 <div id="sidebar">
-    <div class="notice">
-        <strong>Tip:</strong> try (right-)clicking on nodes and edges!
-        Watch a screencast <a href="screencast.mp4" target="_blank">here</a>!
-    </div>
     <div class="tab-bar">
         <ul class="tabs">
             <li><a class="tabs tablink active" onclick="openSidebarTab(event,'tab-basic')">General</a></li>
@@ -80,10 +76,15 @@
         </div>
         <div class="menu" id="menu-filters">
             <h2>Graph filters</h2>
-            <div style="margin-bottom: 0.5rem">
-                <label for="graph-depth">Graph depth</label>
-                <input type="range" min="0" max="10" value="1" id="graph-depth" oninput="updateSliderValue(this)" onchange="updateGraphDepth(this)">
-                <span id="graph-depth-value">1</span>
+            <div class="slider" style="margin-bottom: 0.5rem">
+                <label for="layer-depth">Layer depth</label>
+                <input type="range" min="0" max="5" value="1" id="layer-depth" oninput="updateLayerDepthValue(this)" onchange="updateLayerDepth(this)">
+                <span id="layer-depth-value">1</span>
+            </div>
+            <div class="slider" style="margin-bottom: 0.5rem">
+                <label for="dependency-depth">Dependency depth</label>
+                <input type="range" min="0" max="10" value="1" id="dependency-depth" oninput="updateDependencyDepthValue(this)" onchange="updateDependencyDepth(this)">
+                <span id="dependency-depth-value">1</span>
             </div>
             <div>
                 <button class="sidebar" onclick="loadRootGraph(this)">
