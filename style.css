@@ -254,3 +254,27 @@ ul.tabs {
     width: 100%;
   }
 }
+
+.checkbox-extra {
+  margin-left: 1.5rem;
+}
+
+.slider-long {
+  display: flex;
+  align-items: start;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 0.25rem;
+
+  div {
+    width: 100%;
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+
+    input {
+      flex-grow: 1;
+      width: 100%;
+    }
+  }
+}

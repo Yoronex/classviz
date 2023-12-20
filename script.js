@@ -56,7 +56,7 @@ const prepareEles = function (eles) {
 }
 
 function renderGraph(getGraph, ...params) {
-  console.info('start loading...');
+  console.info(`start loading... (with params ${params})`);
   const graph = getGraph(...params).then((graph) => prepareEles(graph));
   const style = fetch('style.cycss')
       .then(res => res.text());
@@ -81,7 +81,19 @@ window.refreshGraph = function () {
   const showDependencies = document.getElementById('showDependencies')?.checked || false;
   const showDependents = document.getElementById('showDependents')?.checked || false;
 
-  renderGraph(neo4jClient.getDomainModules.bind(neo4jClient), selectedNodeId, layerDepth, dependencyDepth, onlyShowInternalRels, onlyShowExternalRels, showDependencies, showDependents);
+  const dependencyRange = document.getElementById('filterDependencyRange').checked;
+  let minDependencies = dependencyRange ? document.getElementById('min-no-dependencies').value : undefined;
+  let maxDependencies = dependencyRange ? document.getElementById('max-no-dependencies').value : undefined;
+  if (maxDependencies >= 21) maxDependencies = undefined;
+
+  const dependentRange = document.getElementById('filterDependentRange').checked;
+  let minDependents = dependentRange ? document.getElementById('min-no-dependents').value : undefined;
+  let maxDependents = dependentRange ? document.getElementById('max-no-dependents').value : undefined;
+  if (maxDependents >= 21) maxDependents = undefined;
+
+  renderGraph(neo4jClient.getDomainModules.bind(neo4jClient),
+      selectedNodeId, layerDepth, dependencyDepth, onlyShowInternalRels, onlyShowExternalRels, showDependencies, showDependents,
+      { min: minDependencies, max: maxDependencies}, { min: minDependents, max: maxDependents});
 }
 
 function setParents(relationship, inverted) {
@@ -688,6 +700,23 @@ window.updateDependencyDepthValue = function (event) {
 window.updateDependencyDepth = function (event) {
   dependencyDepth = parseInt(event.value);
   refreshGraph();
+}
+
+window.toggleDependencyRangeSliders = function (event) {
+  for (let input of document.getElementById('dependencies-range').getElementsByTagName('input')) {
+    input.disabled = !event.checked;
+  }
+}
+
+window.toggleDependentRangeSliders = function (event) {
+  for (let input of document.getElementById('dependents-range').getElementsByTagName('input')) {
+    input.disabled = !event.checked;
+  }
+}
+
+window.updateDependencyRangeSliders = function (event) {
+  const sliderValue = document.getElementById(event.id + '-value');
+  sliderValue.innerHTML = event.value < 21 ? event.value : 'Inf';
 }
 
 function bindPopper(target) {

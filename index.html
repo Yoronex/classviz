@@ -43,12 +43,12 @@
 
     <script src="https://unpkg.com/neo4j-driver"></script>
     <script src="script.js" type="module"></script>
-    <title>Class Diagram Visualization</title>
+    <title>Vopak OutSystems landscape map</title>
 </head>
 
 <body>
 <div class="titlebar">
-    <h1 id="filename">Software Visualization</h1>
+    <h1 id="filename">Vopak OutSystems landscape map</h1>
     <button title="Upload JSON" class="toolbutton" onclick="fileUpload()">
         <img class="icon icon-download" src="img/upload.png" alt="upload">
         <input type="file" id="file-selector" accept=".json">
@@ -73,23 +73,69 @@
     <div class="sidebar-tab" id="tab-basic">
         <div class="menu" id="menu-nodes">
             <h2>Nodes</h2>
-        </div>
-        <div class="menu" id="menu-filters">
-            <h2>Graph filters</h2>
-            <div class="slider" style="margin-bottom: 0.5rem">
-                <label for="layer-depth">Layer depth</label>
-                <input type="range" min="0" max="5" value="1" id="layer-depth" oninput="updateLayerDepthValue(this)" onchange="updateLayerDepth(this)">
-                <span id="layer-depth-value">1</span>
-            </div>
-            <div class="slider" style="margin-bottom: 0.5rem">
-                <label for="dependency-depth">Dependency depth</label>
-                <input type="range" min="0" max="10" value="1" id="dependency-depth" oninput="updateDependencyDepthValue(this)" onchange="updateDependencyDepth(this)">
-                <span id="dependency-depth-value">1</span>
-            </div>
             <div>
                 <button class="sidebar" onclick="loadRootGraph(this)">
                     Return to domain overview
                 </button>
+            </div>
+        </div>
+        <div class="menu" id="menu-filters">
+            <h2>Graph filters</h2>
+            <div class="slider">
+                <label for="layer-depth">Layer depth</label>
+                <input type="range" min="0" max="5" value="1" id="layer-depth" oninput="updateLayerDepthValue(this)" onchange="updateLayerDepth(this)">
+                <span id="layer-depth-value">1</span>
+            </div>
+            <div class="slider" style="margin-bottom: 1.5rem">
+                <label for="dependency-depth">Dependency depth</label>
+                <input type="range" min="0" max="10" value="1" id="dependency-depth" oninput="updateDependencyDepthValue(this)" onchange="updateDependencyDepth(this)">
+                <span id="dependency-depth-value">1</span>
+            </div>
+
+            <label for="filterDependencyRange">
+                <input type="checkbox" id="filterDependencyRange" name="filterDependencyRange" onchange="toggleDependencyRangeSliders(this)" />
+                Set nr of dependencies range
+            </label>
+            <div class="checkbox-extra" id="dependencies-range">
+                <div>
+                    <div class="slider-long" style="margin-bottom: 1rem">
+                        <label for="min-no-dependencies">Minimum number of dependencies</label>
+                        <div>
+                            <input disabled type="range" min="0" max="21" value="0" id="min-no-dependencies" oninput="updateDependencyRangeSliders(this)" onchange="refreshGraph()">
+                            <span id="min-no-dependencies-value">0</span>
+                        </div>
+                    </div>
+                    <div class="slider-long" style="margin-bottom: 1rem">
+                        <label for="max-no-dependencies">Maximum number of dependencies</label>
+                        <div>
+                            <input disabled type="range" min="0" max="21" value="21" id="max-no-dependencies" oninput="updateDependencyRangeSliders(this)" onchange="refreshGraph()">
+                            <span id="max-no-dependencies-value">21</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <label for="filterDependentRange">
+                <input type="checkbox" id="filterDependentRange" name="filterDependentRange" onchange="toggleDependentRangeSliders(this)" />
+                Set nr of dependents range
+            </label>
+            <div class="checkbox-extra" id="dependents-range">
+                <div>
+                    <div class="slider-long" style="margin-bottom: 1rem">
+                        <label for="min-no-dependents">Minimum number of dependents</label>
+                        <div>
+                            <input disabled type="range" min="0" max="21" value="0" id="min-no-dependents" oninput="updateDependencyRangeSliders(this)" onchange="refreshGraph()">
+                            <span id="min-no-dependents-value">0</span>
+                        </div>
+                    </div>
+                    <div class="slider-long" style="margin-bottom: 1rem">
+                        <label for="max-no-dependents">Maximum number of dependents</label>
+                        <div>
+                            <input disabled type="range" min="0" max="21" value="21" id="max-no-dependents" oninput="updateDependencyRangeSliders(this)" onchange="refreshGraph()">
+                            <span id="max-no-dependents-value">21</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="menu" id="menu-edges">
