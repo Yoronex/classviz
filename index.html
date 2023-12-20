@@ -94,15 +94,22 @@
         </div>
         <div class="menu" id="menu-edges">
             <h2>Relationships</h2>
-            <div style="margin-bottom: 1rem">
+            <div style="margin-bottom: 1rem; display: flex; flex-direction: column">
                 <label for="showInternalRelationships">
                     <input type="checkbox" id="showInternalRelationships" name="showInternalRelationships" onchange="refreshGraph(this)" checked="checked"/>
                     Show internal relationships
                 </label>
-                <br>
                 <label for="showExternalRelationships">
                     <input type="checkbox" id="showExternalRelationships" name="showExternalRelationships" onchange="refreshGraph(this)" checked="checked"/>
                     Show external relationships
+                </label>
+                <label for="showDependencies">
+                    <input type="checkbox" id="showDependencies" name="showDependencies" onchange="refreshGraph(this)" checked="checked"/>
+                    Show dependency relationships
+                </label>
+                <label for="showDependents">
+                    <input type="checkbox" id="showDependents" name="showDependents" onchange="refreshGraph(this)"/>
+                    Show dependent relationships
                 </label>
             </div>
             <table style="width: 100%; text-align: left" id="reltab">

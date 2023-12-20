@@ -75,11 +75,13 @@ window.refreshGraph = function () {
   if (!selectedNodeId) return;
   const showInternalRels = document.getElementById('showInternalRelationships')?.checked || false;
   const showExternalRels = document.getElementById('showExternalRelationships')?.checked || false;
-  console.log(showExternalRels)
   const onlyShowInternalRels = !showExternalRels;
   const onlyShowExternalRels = !showInternalRels;
-  console.log(onlyShowInternalRels, onlyShowExternalRels);
-  renderGraph(neo4jClient.getDomainModules.bind(neo4jClient), selectedNodeId, layerDepth, dependencyDepth, onlyShowInternalRels, onlyShowExternalRels);
+
+  const showDependencies = document.getElementById('showDependencies')?.checked || false;
+  const showDependents = document.getElementById('showDependents')?.checked || false;
+
+  renderGraph(neo4jClient.getDomainModules.bind(neo4jClient), selectedNodeId, layerDepth, dependencyDepth, onlyShowInternalRels, onlyShowExternalRels, showDependencies, showDependents);
 }
 
 function setParents(relationship, inverted) {

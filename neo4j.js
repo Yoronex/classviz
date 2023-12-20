@@ -6,7 +6,7 @@ export class Neo4jClient {
         return json;
     }
 
-    async getDomainModules(id, layerDepth, dependencyDepth, onlyInternalRelations = false, onlyExternalRelations = false) {
+    async getDomainModules(id, layerDepth, dependencyDepth, onlyInternalRelations = false, onlyExternalRelations = false, showDependencies = true, showDependents = false) {
         const response = await fetch('http://localhost:3000/api/graph/node', {
             method: 'POST',
             headers: {
@@ -18,6 +18,8 @@ export class Neo4jClient {
                 dependencyDepth,
                 onlyInternalRelations,
                 onlyExternalRelations,
+                showDependencies,
+                showDependents,
             })
         });
         const json = await response.json();
