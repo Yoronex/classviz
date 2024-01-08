@@ -246,21 +246,7 @@ function bindRouters() {
 
     infoHeader.textContent = evt.target.data()["properties"]["simpleName"];
     infoText.textContent = evt.target.data()["properties"]["description"] ? evt.target.data()["properties"]["description"] : "(no description)";
-
-    
-
-    if (evt.target.data()['labels'].includes('Structure')) {
-      if (evt.target.data()["properties"]["rs"]) {
-        infoBody.style.backgroundColor = rs_colors[evt.target.data()["properties"]["rs"]][1];
-        infoSubeader.innerHTML = `<b><i>${evt.target.data()["properties"]["kind"]}</i> – ${evt.target.data()["properties"]["rs"]}</b>`;
-      } else {
-        infoBody.style.backgroundColor = "inherit";
-        infoSubeader.innerHTML = `<b><i>${evt.target.data()["properties"]["kind"]}</i></b>`;
-      }
-    } else if (evt.target.data()['labels'].includes('Container')) {
-      infoBody.style.backgroundColor = "inherit";
-      infoSubeader.innerHTML = `<b><i>${evt.target.data()["properties"]["kind"]}</i></b>`;
-    }
+    infoText.textContent = evt.target.data()['id'] ?? 'No ID';
 
     infoBody.innerHTML = "";
     infoBody.appendChild(infoHeader);
